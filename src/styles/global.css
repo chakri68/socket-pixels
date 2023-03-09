@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,300;1,400&display=swap');
+/* @import 'https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css'; */
+/* @import 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css'; */
+
+html,
+body {
+	font-family: 'Poppins', sans-serif;
+}
+
+.gen-grid {
+	/* Grid in JS */
+	gap: 1px;
+	width: min(600px, calc(100vw - 1rem));
+	aspect-ratio: 1;
+	background-color: white;
+}
+.gen-grid .cell {
+	padding: 0;
+	border: none;
+	box-shadow: 0 0 0 2px gray;
+	border-collapse: collapse;
+}
+
+.gen-grid .cell.highlight::after {
+	content: '';
+	opacity: 0.5;
+	backdrop-filter: blur(5px);
+	-webkit-backdrop-filter: blur(5px);
+	scale: 1.2;
+	display: block;
+	background-color: gray;
+	width: 100%;
+	height: 100%;
+}
+
+#h {
+	width: fit-content;
+	height: fit-content;
+	margin: 10rem auto;
+}
+
+.bitmap-view-box {
+	display: grid;
+	grid-template-rows: 4fr 1fr;
+	overflow: hidden;
+	position: relative;
+	border-radius: 6px;
+	width: 100%;
+	min-height: 100vh;
+	height: fit-content;
+	background-color: aquamarine;
+	outline: 1rem solid orange;
+}
+
+.bitmap-main {
+	width: 100%;
+	height: 100%;
+}
+
+#bitmap {
+	overflow-y: visible;
+}
+
+.bitmap-toolbar {
+	display: grid;
+	place-items: center;
+	padding: 1rem 2rem;
+	width: 100%;
+	background: rgba(255, 255, 255, 0.2);
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+	backdrop-filter: blur(5px);
+	-webkit-backdrop-filter: blur(5px);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	height: 100%;
+}
+
+/* color palette styles */
+
+.color-palette {
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	grid-gap: 10px;
+	width: 100%;
+	max-width: 900px;
+	grid-auto-flow: column;
+	margin: auto;
+	/* grid-template-columns added in JS */
+	justify-items: center;
+}
+
+.color {
+	border: none;
+	position: relative;
+	height: 75px;
+	width: 75px;
+	border-radius: 4px;
+	overflow: hidden;
+	transition: all 0.15s;
+}
+.color-text {
+	text-transform: uppercase;
+	font-weight: 600;
+	position: relative;
+	color: black;
+	mix-blend-mode: difference;
+}
+
+.color:hover .color-text {
+	mix-blend-mode: initial;
+	color: white;
+}
+.color::before {
+	top: 0;
+	left: 0;
+	position: absolute;
+	content: '';
+	display: block;
+	content: '';
+	width: 100%;
+	height: 100%;
+}
+.color:hover {
+	cursor: pointer;
+	border-color: rgba(0, 0, 0, 0.15);
+	box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+	color: rgba(0, 0, 0, 0.65);
+	transform: translateY(-5px);
+}
+.color:hover::before {
+	background-color: rgba(0, 0, 0, 0.5);
+}
