@@ -14,14 +14,15 @@
 		NumberInput,
 		Grid,
 		Column,
-		Row
+		Row,
+		InlineNotification
 	} from 'carbon-components-svelte';
 	import Send from 'carbon-icons-svelte/lib/Send.svelte';
 	import Add from 'carbon-icons-svelte/lib/Add.svelte';
 	import { goto } from '$app/navigation';
 	/** @type {any} */
 	let formData,
-		/** @type {string} */ backend_uri = '',
+		/** @type {string} */ backend_uri = 'https://socket-pixels-server.onrender.com',
 		/** @type {number} */ timeout = 10000,
 		/** @type {Array<string>} */ colors = [],
 		/** @type {string} */ gridSize = '10x10';
@@ -57,6 +58,7 @@
 
 	let open = false;
 	let loading = false;
+	let errorMessage = '';
 
 	function addColor() {
 		/** @type {string} */
@@ -69,26 +71,34 @@
 
 	async function createRoom() {
 		if (!(backend_uri && timeout && colors.length > 0)) {
+			errorMessage = 'Please fill in all required fields.';
 			return;
 		}
 		loading = true;
-		let res = await fetch(
-			`${
-				backend_uri[backend_uri.length - 1] == '/'
-					? backend_uri.slice(0, backend_uri.length - 1)
-					: backend_uri
-			}/createroom`,
-			{
-				method: 'POST',
-				body: JSON.stringify(formData)
+		errorMessage = '';
+		try {
+			let res = await fetch(
+				`${
+					backend_uri[backend_uri.length - 1] == '/'
+						? backend_uri.slice(0, backend_uri.length - 1)
+						: backend_uri
+				}/createroom`,
+				{
+					method: 'POST',
+					body: JSON.stringify(formData)
+				}
+			);
+			let data = await res.json();
+			if (data?.success) {
+				errorMessage = 'An error occurred while creating the room.';
+				loading = false;
+				console.log({ data });
+				// Good to redirect
+				goto(`/room/${data.data.roomId}`);
 			}
-		);
-		let data = await res.json();
-		if (data?.success) {
+		} catch (error) {
+			errorMessage = 'An error occurred while creating the room.';
 			loading = false;
-			console.log({ data });
-			// Good to redirect
-			goto(`/room/${data.data.roomId}`);
 		}
 	}
 </script>
@@ -116,7 +126,7 @@
 							<TextInput
 								bind:value={backend_uri}
 								labelText="Backend URL"
-								placeholder="http://172.70.106.95:3000/"
+								placeholder="https://socket-pixels-server.onrender.com"
 							/>
 						</FormGroup>
 						<FormGroup>
@@ -128,13 +138,13 @@
 						</FormGroup>
 						<FormGroup>
 							<NumberInput
-								min={10000}
+								min={1000}
 								max={1800000}
 								bind:value={timeout}
 								invalidText="Time must be between 10 seconds and 30 minutes"
 								step={1000}
 								helperText="Time user must wait between 2 inputs"
-								label="Timeout (10s to 30min)"
+								label="Timeout (1s to 30min)"
 							/>
 						</FormGroup>
 						<FormGroup>
@@ -173,6 +183,9 @@
 								</Row>
 							</Grid>
 						</FormGroup>
+						{#if errorMessage}
+							<InlineNotification kind="error" subtitle={errorMessage} />
+						{/if}
 					</Form>
 				</Modal>
 			</div>

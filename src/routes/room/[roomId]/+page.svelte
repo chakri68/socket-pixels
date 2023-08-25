@@ -2,49 +2,28 @@
 	// @ts-nocheck
 
 	import { io } from 'socket.io-client';
-	import {
-		Button,
-		Modal,
-		Form,
-		FormGroup,
-		Checkbox,
-		RadioButtonGroup,
-		RadioButton,
-		Select,
-		SelectItem,
-		TextInput,
-		MultiSelect,
-		NumberInput,
-		Grid,
-		Column,
-		Row,
-		ToastNotification
-	} from 'carbon-components-svelte';
+	import { Modal, Form, FormGroup, TextInput, ToastNotification } from 'carbon-components-svelte';
 	import Send from 'carbon-icons-svelte/lib/Send.svelte';
 	import { okzoomer, gestureToMatrix, getOrigin, applyMatrix } from '$lib/ok-zoomer';
 	import { formatTime } from '$lib/utils';
 
+	import { addToast, dismissToast, toasts } from '$lib/stores/ToastStore';
+
 	/** @type {import('./$types').PageData} */
 	export let data;
 	let cellData = null;
-
-	/** @type {number?} */
 	let waitingTime = null;
-
-	let open = true;
-	/** @type {HTMLDivElement} */
 	let selectedCell = null;
 	let socket;
 
-	let backend_uri = '',
-		username = '';
-
-	/** @type {any} */
+	let backend_uri = 'https://socket-pixels-server.onrender.com';
+	let username = '';
 	let config = { roomId: data.roomId };
 	$: config.backend_uri =
 		backend_uri[backend_uri.length - 1] == '/'
 			? backend_uri.slice(0, backend_uri.length - 1)
 			: backend_uri;
+	let open = true;
 
 	function connect() {
 		let origin;
@@ -101,6 +80,12 @@
 
 		socket.on('wait', (data) => {
 			waitingTime = data.waitTime;
+			addToast({
+				type: 'info',
+				title: 'Timeout Error',
+				subtitle: `You have to wait ${formatTime(waitingTime)} before you can draw again.`,
+				dismissible: true
+			});
 		});
 
 		open = false;
@@ -150,15 +135,21 @@
 	}
 </script>
 
-{#if waitingTime}
-	<ToastNotification
-		style="z-index: 100;"
-		title="Timeout"
-		kind="warning"
-		timeout={5000}
-		fullWidth={true}
-		subtitle={`Wait for ${formatTime(waitingTime)}`}
-	/>
+{#if $toasts}
+	<section style="position: fixed; top: 0; left: 0; z-index: 100;">
+		{#each $toasts as toast (toast.id)}
+			<ToastNotification
+				type={toast.type}
+				fullWidth
+				timeout={toast.timeout}
+				dismissible={toast.dismissible}
+				on:dismiss={() => dismissToast(toast.id)}
+				title={toast.title}
+				subtitle={toast.subtitle}
+				caption={new Date().toLocaleString()}
+			/>
+		{/each}
+	</section>
 {/if}
 
 <Modal
