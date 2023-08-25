@@ -41,13 +41,12 @@ body {
 
 .bitmap-view-box {
 	display: grid;
-	grid-template-rows: 4fr 1fr;
+	grid-template-rows: 80vh 1fr;
 	overflow: hidden;
 	position: relative;
 	border-radius: 6px;
 	width: 100%;
-	min-height: 100vh;
-	height: fit-content;
+	height: 100vh;
 	background-color: aquamarine;
 	outline: 1rem solid orange;
 }
